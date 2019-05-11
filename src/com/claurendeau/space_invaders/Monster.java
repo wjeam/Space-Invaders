@@ -4,42 +4,37 @@ import java.util.Random;
 
 public class Monster extends Entity {
 
-    private int direction;
     private int state;
     private int type;
 
     public Monster(int x, int y) {
         super(x, y);
 
-        direction = 1;
         state = 1;
 
         assignIcon();
     }
 
     public void assignIcon() {
-        type = new Random().nextInt(2)+1;
-
-        setIcon("resources/images/monstre" + type + "_1.png");
+        type = new Random().nextInt(3)+1;
+        setIcon("resources/images/monstre"+type+"_1.png");
     }
 
-    public void avance(){
+    public void avance(int direction){
         if(direction == 1){
-            x+=+20;
+            x+=5;
         }else{
-            x-=20;
+            x-=5;
         }
-
-        changeType();
     }
 
-    public void changeType(){
-        if(type == 1){
-            type = 2;
+    public void changeState(){
+        if(state == 1){
+            state = 2;
         }else{
-            type = 1;
+            state = 1;
         }
 
-        setIcon("resources/images/monstre"+state+"_"+type+".png");
+        setIcon("resources/images/monstre"+type+"_"+state+".png");
     }
 }

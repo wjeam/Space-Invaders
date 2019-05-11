@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Entity {
+public class Entity  {
     protected int x;
     protected int y;
     protected boolean alive;
@@ -35,7 +35,7 @@ public class Entity {
         return icon;
     }
 
-    public boolean islive(){
+    public boolean isAlive(){
         return alive;
     }
 

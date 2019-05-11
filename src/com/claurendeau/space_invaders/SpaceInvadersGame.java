@@ -1,5 +1,9 @@
 package com.claurendeau.space_invaders;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.awt.*;
+import java.io.File;
 
 public class SpaceInvadersGame {
 
@@ -8,11 +12,21 @@ public class SpaceInvadersGame {
     private Missile[] missile;
 
     private int lives;
-
     private int missileCount;
+    private int soundChoice = 0;
+    private int direction;
+    private int score = 0;
 
     private boolean isWinner = false;
-    private int direction;
+
+    private Rectangle missileBounds;
+    private Rectangle monsterBounds;
+
+    private final int SCORE_ON_KILL = 20;
+    private final int MONSTER_ROWS = 5;
+    private final int MONSTER_COLUMNS = 10;
+
+    private Clip clip = null;
 
     public SpaceInvadersGame(int width, int height) {
         canon = new Canon(width/2 - 35/2, height - 50);
@@ -21,17 +35,41 @@ public class SpaceInvadersGame {
 
         lives = 3;
         direction = 1;
-
         createMonsters();
+    //  newGame();
+    }
+
+    public void newGame(){
+
+    }
+
+    public int getScore(){
+        return score;
+    }
+
+    // https://stackoverflow.com/questions/26305/how-can-i-play-sound-in-java
+    public synchronized void playSound(final String url) {
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Clip clip = AudioSystem.getClip();
+                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(url));
+                    clip.open(inputStream);
+                    clip.start();
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }).start();
     }
 
     public void createMonsters(){
         int increment = 0;
-        monster = new Monster[50];
+        monster = new Monster[MONSTER_COLUMNS*MONSTER_ROWS];
 
-        for(int i = 0; i < 10; i++){
-            for(int j = 0; j < 5; j++){
-                monster[increment] = new Monster(i * 45 + 35, j * 45 + 35);
+        for(int i = 0; i < MONSTER_ROWS; i++){
+            for(int j = 0; j < MONSTER_COLUMNS; j++){
+                monster[increment] = new Monster((j * 45)+45, (i * 45)+65);
                 increment++;
             }
         }
@@ -66,14 +104,13 @@ public class SpaceInvadersGame {
 
     public void step() {
         moveMissile();
-
         checkCollision();
     }
 
     public void moveMissile(){
         for(int i = 0;i < missile.length;i++) {
             if(missile[i] != null) {
-                missile[i].setY(missile[i].getY() - 75);
+                missile[i].setY(missile[i].getY() - 35);
                 if(missile[i].getY() < 0) {
                     removeMissile(i);
                 }
@@ -86,7 +123,9 @@ public class SpaceInvadersGame {
         Monster lastMonster = monster[monster.length - 1];
         boolean change = false;
 
-        if(direction == 1 && lastMonster.getX() + 15 * 2 > SpaceInvaders.WIDTH || direction == 2 && firstMonster.getX() - 15 < 0 ) {
+        changeMonsterIcon();
+
+        if(direction == 1 && lastMonster.getX() + 35 + 15 > SpaceInvaders.WIDTH || direction == 2 && firstMonster.getX() - 15 < 0 ) {
             changeDirection();
             change = true;
         }
@@ -100,26 +139,48 @@ public class SpaceInvadersGame {
         }
     }
 
-    public void checkCollision(){
-        Rectangle missileBounds;
-        Rectangle monsterBounds;
+    public void changeMonsterIcon(){
+        for(int i = 0; i < monster.length; i++){
+            if(monster[i].isExploded()){
+                monster[i].setExploded(false);
+                monster[i].assignIcon();
+            }
+        }
+    }
 
+    public void playMonsterSound(){
+        playSound("resources/sounds/fastinvader"+(soundChoice+1)+".wav");
+        soundChoice++;
+
+        if(soundChoice > 3){ soundChoice = 0; }
+    }
+
+
+    public void checkCollision(){
         for(int i = 0; i < missile.length; i++){
             if(missile[i] != null) {
-                missileBounds = new Rectangle(missile[i].getX() - 7/2, missile[i].getY() - 20/2, 7,20);
+                missileBounds = new Rectangle(missile[i].getX(), missile[i].getY(), 7,20);
                 for(int j = 0; j < monster.length; j++){
                     if(monster[j].isAlive()) {
-                        monsterBounds = new Rectangle(monster[j].getX() - 35/2, monster[j].getY() - 35/2,35,35);
+                        monsterBounds = new Rectangle(monster[j].getX(), monster[j].getY(),35,35);
                         if(missileBounds.intersects(monsterBounds)) {
-                            System.out.println(i+" : "+j);
-                            monster[j].setAlive(false);
-                            removeMissile(i);
+                            invaderKilled(j, i);
+                            System.out.println(j);
                             break;
                         }
                     }
                 }
             }
         }
+    }
+
+    public void invaderKilled(int monsterID, int missileID){
+        monster[monsterID].setIcon("resources/images/explosion.png");
+        monster[monsterID].setExploded(true);
+        monster[monsterID].setAlive(false);
+        playSound("resources/sounds/invaderkilled.wav");
+        removeMissile(missileID);
+        score+=SCORE_ON_KILL;
     }
 
     public void removeMissile(int i){
@@ -139,7 +200,7 @@ public class SpaceInvadersGame {
 
     public void shiftDownMonsters(){
         for(int i = 0; i < monster.length; i++){
-            monster[i].setY(monster[i].getY() + 35);
+            monster[i].setY(monster[i].getY() + 45);
         }
     }
 

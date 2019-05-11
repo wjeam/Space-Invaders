@@ -6,6 +6,7 @@ public class Monster extends Entity {
 
     private int state;
     private int type;
+    private boolean exploded = false;
 
     public Monster(int x, int y) {
         super(x, y);
@@ -22,10 +23,18 @@ public class Monster extends Entity {
 
     public void avance(int direction){
         if(direction == 1){
-            x+=5;
+            x+=15;
         }else{
-            x-=5;
+            x-=15;
         }
+    }
+
+    public void setExploded(boolean exploded){
+        this.exploded = exploded;
+    }
+
+    public boolean isExploded(){
+        return exploded;
     }
 
     public void changeState(){

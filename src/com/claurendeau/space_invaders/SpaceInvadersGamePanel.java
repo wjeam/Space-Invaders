@@ -1,5 +1,4 @@
 package com.claurendeau.space_invaders;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -26,8 +25,6 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
     private final int COEUR_WIDTH = 15;
     private final int COEUR_HEIGHT = 15;
 
-    private boolean active;
-
     private BufferedImage coeur;
 
     public SpaceInvadersGamePanel(int width, int height) {
@@ -35,16 +32,19 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
         this.height = height;
 
         game = new SpaceInvadersGame(width, height);
-        active = true;
 
         loadResources();
 
+        // Timer principal
         Timer timer = new Timer(20, this);
         timer.start();
 
-        new Timer(200, new ActionListener() {
+        // Timer pour cadencer la vitesse des monstres
+        new Timer(1000, new ActionListener() {
             @Override public void actionPerformed(ActionEvent e) {
                game.moveMonster();
+               game.getMonsters();
+               game.playMonsterSound();
             }
         }).start();
 
@@ -70,21 +70,19 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
         g.setColor(Color.black);
         g.fillRect(0, 0, width, height);
 
-        if(active == true) {
-            drawMissiles(g);
-            drawMonsters(g);
-            drawText(g);
-            drawCanon(g);
-            drawLives(g);
-        } else {
-
-        }
+        drawMissiles(g);
+        drawMonsters(g);
+        drawText(g);
+        drawCanon(g);
+        drawLives(g);
 
         Toolkit.getDefaultToolkit().sync();
     }
 
     public void drawCanon(Graphics g){
-        g.drawImage(game.getCanon().getIcon(), game.getCanon().getX(), SpaceInvaders.HEIGHT - 100, CANON_WIDTH, CANON_HEIGHT, null);
+        if(game.getCanon().isAlive()) {
+            g.drawImage(game.getCanon().getIcon(),game.getCanon().getX(),SpaceInvaders.HEIGHT - 100,CANON_WIDTH,CANON_HEIGHT,null);
+        }
     }
 
     public void drawMissiles(Graphics g){
@@ -98,17 +96,21 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
     public void drawText(Graphics g){
         g.setFont(new Font("Cosmic Alien", Font.PLAIN, 20));
         g.setColor(Color.white);
-        g.drawString("Score: 0 pts ", 5, 20);
+        g.drawString("Score: "+game.getScore()+" pts ", 5, 20);
 
         g.setFont(new Font("Cosmic Alien", Font.PLAIN, 15));
         g.setColor(Color.white);
         g.drawString("Vie ", 10, SpaceInvaders.HEIGHT-50+12);
+
+        g.setFont(new Font("Cosmic Alien", Font.PLAIN, 20));
+        g.setColor(Color.white);
+        g.drawString("High Score: 1000 pts", 5, 40);
     }
 
     public void drawMonsters(Graphics g){
         for(int i = 0; i < game.getMonsters().length; i++){
-            if(game.getMonsters()[i].isAlive()){
-                g.drawImage(game.getMonsters()[i].getIcon(), game.getMonsters()[i].getX(), game.getMonsters()[i].getY(), CANON_WIDTH, CANON_HEIGHT, null);
+            if(game.getMonsters()[i].isAlive() && !game.getMonsters()[i].isExploded() || !game.getMonsters()[i].isAlive() && game.getMonsters()[i].isExploded()){
+                g.drawImage(game.getMonsters()[i].getIcon(), game.getMonsters()[i].getX(), game.getMonsters()[i].getY(), MONSTER_WIDTH, MONSTER_HEIGHT, null);
             }
         }
     }
@@ -155,6 +157,7 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
 
         if(e.getKeyCode() == KeyEvent.VK_SPACE){
             game.createMissile();
+            game.playSound("resources/sounds/shoot.wav");
         }
 
         repaint();

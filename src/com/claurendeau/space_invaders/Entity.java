@@ -17,11 +17,6 @@ public class Entity  {
         alive = true;
     }
 
-    public Entity(int x, int y, int speed){
-        this.x = x;
-        this.y = y;
-    }
-
     public void setIcon(String path){
         try {
             icon = ImageIO.read(new File(path));

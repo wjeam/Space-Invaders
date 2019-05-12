@@ -6,14 +6,20 @@ import java.io.File;
 import java.io.IOException;
 
 public class Entity  {
-    protected int x;
-    protected int y;
-    protected boolean alive;
-    protected BufferedImage icon;
+    // On aurait pu utiliser protected
+    private int x;
+    private int y;
+    private boolean alive;
+    private BufferedImage icon;
+    private int width;
+    private int height;
 
-    public Entity(int x, int y){
+    public Entity(int x, int y, int width, int height){
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
+
         alive = true;
     }
 
@@ -24,6 +30,14 @@ public class Entity  {
         catch(IOException e){
             System.out.println("Error: "+e);
         }
+    }
+
+    public int getWidth(){
+        return width;
+    }
+
+    public int getHeight(){
+        return height;
     }
 
     public BufferedImage getIcon(){

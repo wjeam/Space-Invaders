@@ -4,14 +4,16 @@ import java.util.Random;
 
 public class Monster extends Entity {
 
-    private int state;
+    private int animation;
     private int type;
     private boolean exploded = false;
+    private int deplacement;
 
-    public Monster(int x, int y) {
-        super(x, y);
+    public Monster(int x, int y, int width, int height) {
+        super(x, y, width, height);
 
-        state = 1;
+        animation = 1;
+        deplacement = 15;
 
         assignIcon();
     }
@@ -21,12 +23,24 @@ public class Monster extends Entity {
         setIcon("resources/images/monstre"+type+"_1.png");
     }
 
-    public void avance(int direction){
+    public void setDeplacement(int deplacement){
+        this.deplacement = deplacement;
+    }
+
+    public int getDeplacement(){
+        return deplacement;
+    }
+
+    public void forward(int direction){
         if(direction == 1){
-            x+=15;
+            setX(getX() + deplacement);
         }else{
-            x-=15;
+            setX(getX() - deplacement);
         }
+    }
+
+    public void down(){
+        setY(getY() + getHeight());
     }
 
     public void setExploded(boolean exploded){
@@ -37,13 +51,21 @@ public class Monster extends Entity {
         return exploded;
     }
 
-    public void changeState(){
-        if(state == 1){
-            state = 2;
-        }else{
-            state = 1;
+    public void resetAnimation(){
+        animation = 1;
+        setIcon("resources/images/monstre"+type+"_"+animation+".png");
+    }
+
+    public void animateMonster(){
+        switch(animation) {
+        case 1:
+            animation = 2;
+            break;
+        case 2:
+            animation = 1;
+            break;
         }
 
-        setIcon("resources/images/monstre"+type+"_"+state+".png");
+        setIcon("resources/images/monstre"+type+"_"+animation+".png");
     }
 }

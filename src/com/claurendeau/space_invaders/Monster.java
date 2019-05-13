@@ -20,6 +20,7 @@ public class Monster extends Entity {
 
     public void assignIcon() {
         type = new Random().nextInt(3)+1;
+        setValue(type*10);
         setIcon("resources/images/monstre"+type+"_1.png");
     }
 

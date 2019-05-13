@@ -1,4 +1,5 @@
 package com.claurendeau.space_invaders;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +21,12 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
     private final int COEUR_HEIGHT = 15;
 
     private BufferedImage coeur;
+    private BufferedImage monstre1;
+    private BufferedImage monstre2;
+    private BufferedImage monstre3;
+    private BufferedImage soucoupe;
+
+    private Timer monsterTimer;
 
     public SpaceInvadersGamePanel(int width, int height) {
         this.width = width;
@@ -34,7 +41,7 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
         timer.start();
 
         // Timer pour cadencer la vitesse des monstres
-        new Timer(700, new ActionListener() {
+        monsterTimer = new Timer (1000, new ActionListener() {
             @Override public void actionPerformed(ActionEvent e) {
                 if(game.getGameState().equals("active")) {
                     game.moveMonster();
@@ -42,18 +49,31 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
                     game.createMonsterMissile();
                     game.createMonsterMissile();
                     game.playMonsterSound();
+                    game.createSoucoupe();
+                    changeSpeed(1000-(game.getMonsterCount()-game.getMonsterLeft())*700/game.getMonsterCount());
                 }
             }
-        }).start();
+        });
+
+        monsterTimer.start();
 
         this.addKeyListener(this);
         setFocusable(true);
+    }
+
+    public void changeSpeed(int speed){
+        monsterTimer.setDelay(speed);
+        game.setMonsterSpeed();
     }
 
     public void loadResources(){
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             coeur = ImageIO.read(new File("resources/images/coeur.png"));
+            monstre1 = ImageIO.read(new File("resources/images/monstre1_2.png"));
+            monstre2 = ImageIO.read(new File("resources/images/monstre2_1.png"));
+            monstre3 = ImageIO.read(new File("resources/images/monstre3_1.png"));
+            soucoupe = ImageIO.read(new File("resources/images/si_soucoupe.png"));
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("resources/fonts/ca.ttf")));
         } catch (Exception e) {
             System.out.println("Error: "+e);
@@ -76,12 +96,19 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
             drawCanon(g);
             drawLives(g);
             drawMonsterMissile(g);
+            drawSoucoupe(g);
         }else if(game.getGameState().equals("dead")){
             drawDead(g);
         }else if(game.getGameState().equals("winner")){
             drawWinner(g);
         }else if(game.getGameState().equals("loser")){
             drawLoser(g);
+        }
+    }
+
+    public void drawSoucoupe(Graphics g){
+        if(game.getSoucoupe() != null) {
+            g.drawImage(game.getSoucoupe().getIcon(),game.getSoucoupe().getX(),game.getSoucoupe().getY(),game.getSoucoupe().getWidth(),game.getSoucoupe().getHeight(),null);
         }
     }
 
@@ -94,23 +121,32 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
     }
 
     public void drawDead(Graphics g){
-        drawCenteredText(g, "VOUS ETES MORT", "Cosmic Alien", 20, Color.white);
-        drawCenteredOffsetText(g, "IL VOUS RESTE "+game.getLives()+" VIES", "Cosmic Alien", 15, Color.white, 0, 20);
+        drawCenteredText(g, "VOUS ETES MORT", "Cosmic Alien", 25, Color.white);
+        drawCenteredOffsetText(g, "IL VOUS RESTE "+game.getLives()+" VIES", "Cosmic Alien", 20, Color.white, 0, 30);
     }
 
     public void drawLoser(Graphics g){
-        drawCenteredText(g, "VOUS AVEZ PERDU", "Cosmic Alien", 20, Color.white);
-        drawCenteredOffsetText(g, "APPUYER SUR ESPACE POUR REJOUER", "Cosmic Alien", 20, Color.white, 0, 20);
+        drawCenteredText(g, "VOUS AVEZ PERDU", "Cosmic Alien", 25, Color.white);
+        drawCenteredOffsetText(g, "APPUYER SUR ESPACE POUR REJOUER", "Cosmic Alien", 20, Color.white, 0, 30);
         drawCenteredOffsetText(g, "APPUYER SUR ESCAPE POUR QUITTER", "Cosmic Alien", 15, Color.white, 0, 40);
     }
 
     public void drawMenu(Graphics g){
-        drawCenteredText(g, "APPUYER SUR ESPACE POUR DEBUTER", "Cosmic Alien" , 20, Color.white);
+        drawCenteredOffsetText(g, "SPACE INVADERS", "Cosmic Alien",40, Color.red, 0, -25);
+        drawCenteredText(g, "APPUYER SUR ESPACE POUR DEBUTER", "Cosmic Alien" , 25, Color.white);
+        g.drawImage(monstre1, width/2-125, height/2+10, 35, 35, null);
+        drawCenteredOffsetText(g," = 10 PTS", "Cosmic Alien",25, Color.green, 0, 45);
+        g.drawImage(monstre2, width/2-125, height/2+55, 35, 35, null);
+        drawCenteredOffsetText(g," = 20 PTS", "Cosmic Alien",25, Color.blue, 0, 90);
+        g.drawImage(monstre3, width/2-125, height/2+100, 35, 35, null);
+        drawCenteredOffsetText(g," = 30 PTS", "Cosmic Alien",25, Color.yellow, 0, 135);
+        g.drawImage(soucoupe, width/2-140, height/2+145, 60, 35, null);
+        drawCenteredOffsetText(g," = ??? PTS", "Cosmic Alien",25, Color.red, 10, 180);
     }
 
     public void drawWinner(Graphics g){
-        drawCenteredText(g, "BRAVO VOUS AVEZ GAGNE!", "Cosmic Alien" , 20, Color.white);
-        drawCenteredOffsetText(g, "APPUYER SUR ESPACE POUR CONTINUER", "Cosmic Alien", 15, Color.white, 0, 20);
+        drawCenteredText(g, "BRAVO VOUS AVEZ GAGNE!", "Cosmic Alien" , 25, Color.white);
+        drawCenteredOffsetText(g, "APPUYER SUR ESPACE POUR CONTINUER", "Cosmic Alien", 15, Color.white, 0, 30);
         drawCenteredOffsetText(g, "APPUYER SUR ESCAPE QUITTER", "Cosmic Alien", 15, Color.white, 0, 40);
     }
 
@@ -139,10 +175,8 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
     }
 
     public void drawMissiles(Graphics g){
-        for(int i = 0; i < game.getMissile().length; i++){
-            if(game.getMissile()[i] != null) {
-                g.drawImage(game.getMissile()[i].getIcon(), game.getMissile()[i].getX(), game.getMissile()[i].getY(), game.getMissile()[i].getWidth(), game.getMissile()[i].getHeight(),null);
-            }
+        if(game.getMissile() != null) {
+            g.drawImage(game.getMissile().getIcon(), game.getMissile().getX(), game.getMissile().getY(), game.getMissile().getWidth(), game.getMissile().getHeight(),null);
         }
     }
 
@@ -188,6 +222,7 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
     public void actionPerformed(ActionEvent e) {
         if(game.getGameState().equals("active")) {
             game.step();
+            game.moveSoucoupe();
             repaint();
         }
     }
@@ -233,7 +268,7 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
 
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
             if(game.getGameState().equals("winner") || game.getGameState().equals("loser")){
-                game.saveScore();
+                game.saveHighScore();
                 System.exit(0);
             }
         }

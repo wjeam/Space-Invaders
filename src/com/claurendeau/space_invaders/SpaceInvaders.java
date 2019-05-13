@@ -4,8 +4,8 @@ import javax.swing.*;
 
 public class SpaceInvaders extends JFrame {
 
-    public static final int WIDTH = 750;
-    public static final int HEIGHT = 750;
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 800;
     private static SpaceInvadersGamePanel gamePanel;
 
     public SpaceInvaders(int width, int height) {

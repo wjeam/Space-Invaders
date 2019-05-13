@@ -13,6 +13,7 @@ public class Entity  {
     private BufferedImage icon;
     private int width;
     private int height;
+    private int value;
 
     public Entity(int x, int y, int width, int height){
         this.x = x;
@@ -21,6 +22,14 @@ public class Entity  {
         this.height = height;
 
         alive = true;
+    }
+
+    public void setValue(int value){
+        this.value = value;
+    }
+
+    public int getValue(){
+        return value;
     }
 
     public void setIcon(String path){

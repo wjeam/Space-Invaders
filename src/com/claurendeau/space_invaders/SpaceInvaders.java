@@ -6,9 +6,8 @@ public class SpaceInvaders extends JFrame {
 
     public static final int WIDTH = 800;
     public static final int HEIGHT = 800;
-    private static SpaceInvadersGamePanel gamePanel;
 
-    public SpaceInvaders(int width, int height) {
+    public SpaceInvaders(int width, int height, SpaceInvadersGamePanel gamePanel) {
         super("Space Invaders");
         add(gamePanel);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -19,7 +18,7 @@ public class SpaceInvaders extends JFrame {
     }
 
     public static void main(String[] args){
-        gamePanel = new SpaceInvadersGamePanel(WIDTH, HEIGHT);
-        new SpaceInvaders(WIDTH, HEIGHT);
+        SpaceInvadersGamePanel gamePanel = new SpaceInvadersGamePanel(WIDTH, HEIGHT);
+        new SpaceInvaders(WIDTH, HEIGHT, gamePanel);
     }
 }

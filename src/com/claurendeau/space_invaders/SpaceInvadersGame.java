@@ -2,6 +2,7 @@ package com.claurendeau.space_invaders;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import java.awt.*;
 import java.io.*;
 import java.util.Random;
@@ -15,21 +16,26 @@ public class SpaceInvadersGame {
     private Soucoupe soucoupe;
 
     private String gameState;
+
     private int monsterColumns;
     private int monsterRows;
+
     private int lives;
+
     private int soundChoice;
-    private int highScore;
+
     private int direction;
+
     private int score;
-    private int scoreOnKill = 20;
+    private int highScore;
+
     private int monsterLeft;
     private int monsterCount;
 
     private int MONSTER_WIDTH = 35;
     private int MONSTER_HEIGHT = 35;
 
-    private int CANON_WIDTH= 35;
+    private int CANON_WIDTH = 35;
     private int CANON_HEIGHT = 35;
 
     private int MISSILE_WIDTH = 7;
@@ -45,65 +51,10 @@ public class SpaceInvadersGame {
 
     private Clip clip = null;
 
-    public int getMonsterCount(){
-        return monsterCount;
-    }
-
     public SpaceInvadersGame(int width, int height) {
         gameState = "innactive";
     }
 
-    public int getHighScore(){
-        return highScore;
-    }
-
-    public String getGameState(){
-        return gameState;
-    }
-
-    public void setGameState(String gameState){
-        this.gameState = gameState;
-    }
-
-    public Missile[] getMonsterMissile(){
-        return monsterMissile;
-    }
-
-    public void createSoucoupe(){
-        int random;
-        if(soucoupe == null) {
-            random = new Random().nextInt(150);
-            if(random == 0) {
-                soucoupe = new Soucoupe(0, 35*2,60,35);
-                soucoupe.setRandomPosition();
-                playSound("resources/sounds/ufo_lowpitch.wav");
-            }
-        }
-    }
-
-    public void moveSoucoupe(){
-        if(soucoupe != null){
-            if(soucoupe.getPosition().equals("left")){
-                soucoupe.setX(soucoupe.getX()+5);
-            }else{
-                soucoupe.setX(soucoupe.getX()-5);
-            }
-
-            if(soucoupe.getX() < 0 || soucoupe.getX()+soucoupe.getWidth() > SpaceInvaders.WIDTH){
-                soucoupe = null;
-            }
-        }
-    }
-
-    public Soucoupe getSoucoupe(){
-        return soucoupe;
-    }
-
-    public void setMonsterSpeed(){
-        for(int i = 0; i < monster.length; i++){
-            monster[i].setDeplacement(13+(monsterCount-monsterLeft*35/monsterCount));
-        }
-    }
 
     public void newGame(int width, int height){
         canon = new Canon(width/2 - CANON_WIDTH/2, SpaceInvaders.HEIGHT - CANON_WIDTH*2, CANON_WIDTH, CANON_HEIGHT);
@@ -124,6 +75,10 @@ public class SpaceInvadersGame {
         loadHighScore();
     }
 
+    public int getHighScore(){
+        return highScore;
+    }
+
     public void loadHighScore() {
         try {
             FileReader fr = new FileReader("data/highscore.dat");
@@ -135,47 +90,31 @@ public class SpaceInvadersGame {
                 highScore = 0;
             }
             fr.close();
-        }catch(IOException e){
-            System.out.println("Error: "+e);
-        }
-    }
-
-
-    public void saveHighScore(){
-        try {
-            if(score > highScore){
-                FileWriter fw = new FileWriter("data/highscore.dat");
-                BufferedWriter bw = new BufferedWriter(fw);
-                bw.write(Integer.toString(score));
-                bw.close();
-            }
         }catch(Exception e){
-            System.out.println("Error: "+e);
+            System.out.println("File not found, therefore no highscore data was found. Creating one at the end of the game...");
         }
     }
 
-    public int getScore(){
-        return score;
+    public String getGameState(){
+        return gameState;
     }
 
-    public int getMonsterLeft(){
-        return monsterLeft;
+    public void setGameState(String gameState){
+        this.gameState = gameState;
     }
 
-    // https://stackoverflow.com/questions/26305/how-can-i-play-sound-in-java
-    public synchronized void playSound(final String url) {
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Clip clip = AudioSystem.getClip();
-                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(url));
-                    clip.open(inputStream);
-                    clip.start();
-                } catch (Exception e) {
-                    System.err.println(e.getMessage());
-                }
-            }
-        }).start();
+    public Missile[] getMonsterMissile(){
+        return monsterMissile;
+    }
+
+    public int getMonsterCount(){
+        return monsterCount;
+    }
+
+    public void setMonsterSpeed(){
+        for(int i = 0; i < monster.length; i++){
+            monster[i].setDeplacement(13+(monsterCount-monsterLeft*35/monsterCount));
+        }
     }
 
     public void createMonsters(){
@@ -190,36 +129,12 @@ public class SpaceInvadersGame {
         }
     }
 
-    public void createMissile(){
-        if(missile == null) {
-            playSound("resources/sounds/shoot.wav");
-            missile = new Missile(canon.getX() + canon.getWidth() / 2 - MISSILE_WIDTH / 2,canon.getY() - canon.getWidth() / 2 - MISSILE_HEIGHT / 2,MISSILE_WIDTH,MISSILE_HEIGHT);
-        }
-    }
-
-    public int getLives() {
-        return lives;
-    }
-
-    public Monster[] getMonsters(){
-        return monster;
-    }
-
-    public Canon getCanon(){
-        return canon;
-    }
-
-    public Missile getMissile(){
-        return missile;
-    }
-
-    public void step() {
-        moveMissile();
-        checkCollision();
-        checkMonsterPosition();
-        moveMonsterMissile();
-        if(monsterLeft <= 0){
-            setGameState("winner");
+    public void checkMonsterPosition(){
+        for(int i = 0; i < monster.length; i++ ){
+            if(monster[i].getY() + monster[monster.length-1].getHeight()+10 >= canon.getY() && monster[i].isAlive()) {
+                killPlayer();
+                break;
+            }
         }
     }
 
@@ -261,64 +176,6 @@ public class SpaceInvadersGame {
         }
     }
 
-    public void resetGame(){
-        monsterRows++;
-        createMonsters();
-
-        monsterLeft = monsterColumns*monsterRows;
-        gameState = "active";
-    }
-
-    public void resetMissile(){
-        for(int i = 0; i < monsterMissile.length; i++){
-            monsterMissile[i] = null;
-        }
-    }
-
-
-    public void checkMonsterPosition(){
-        for(int i = 0; i < monster.length; i++ ){
-            if(monster[i].getY() + monster[monster.length-1].getHeight()+10 >= canon.getY() && monster[i].isAlive()) {
-                killPlayer();
-                break;
-            }
-        }
-    }
-
-    public void killPlayer(){
-        canon.setAlive(false);
-        lives--;
-        resetMonster();
-        resetMissile();
-        playSound("resources/sounds/explosion.wav");
-        gameState = "dead";
-        if(lives == 0){
-            gameState = "loser";
-            saveHighScore();
-        }
-    }
-
-    public void resetMonster(){
-        int increment = 0;
-        for(int i = 0; i < monsterColumns; i++){
-            for(int j = 0; j < monsterRows; j++) {
-                monster[increment].setX(i * (monster[increment].getWidth() + 10) + SpaceInvaders.WIDTH/2 - (monsterColumns * MONSTER_WIDTH - monsterColumns * 10) + MONSTER_WIDTH);
-                monster[increment].setY(j * (monster[increment].getHeight() + 10) + monster[increment].getHeight()*2);
-                monster[increment].resetAnimation();
-                increment++;
-            }
-        }
-    }
-
-    public void moveMissile(){
-        if(missile != null) {
-            missile.setY(missile.getY() - missile.getHeight());
-            if(missile.getY() < 0) {
-                removeMissile();
-            }
-        }
-    }
-
     public void moveMonster(){
         firstMonster = monster[0];
         lastMonster = monster[monster.length - 1];
@@ -347,6 +204,182 @@ public class SpaceInvadersGame {
             if(monster[i].isExploded()){
                 monster[i].setExploded(false);
                 monster[i].assignIcon();
+            }
+        }
+    }
+
+    public int getMonsterLeft(){
+        return monsterLeft;
+    }
+
+    public void createSoucoupe(){
+        int random;
+        if(soucoupe == null) {
+            random = new Random().nextInt(150);
+            if(random == 0) {
+                soucoupe = new Soucoupe(0, 35*2,60,35);
+                soucoupe.setRandomPosition();
+                playSound("resources/sounds/ufo_lowpitch.wav");
+            }
+        }
+    }
+
+    public void removeSoucoupe(){
+        soucoupe = null;
+    }
+
+
+    public void moveSoucoupe(){
+        if(soucoupe != null){
+            if(soucoupe.getPosition().equals("left")){
+                soucoupe.setX(soucoupe.getX()+5);
+            }else{
+                soucoupe.setX(soucoupe.getX()-5);
+            }
+
+            if(soucoupe.getX() < 0 || soucoupe.getX()+soucoupe.getWidth() > SpaceInvaders.WIDTH){
+                soucoupe = null;
+            }
+        }
+    }
+
+    public Soucoupe getSoucoupe(){
+        return soucoupe;
+    }
+
+    public void saveHighScore(){
+        try {
+            if(score > highScore){
+                FileWriter fw = new FileWriter("data/highscore.dat");
+                BufferedWriter bw = new BufferedWriter(fw);
+                bw.write(Integer.toString(score));
+                bw.close();
+            }
+        }catch(Exception e){
+            System.out.println("Error: "+e);
+        }
+    }
+
+    public int getScore(){
+        return score;
+    }
+
+    // https://stackoverflow.com/questions/26305/how-can-i-play-sound-in-java
+    public synchronized void playSound(final String url) {
+        new Thread(new Runnable() {
+            private String os = System.getProperty("os.name").toLowerCase();
+
+            public void run() {
+                if(os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+                    playSoundLinux(url);
+                }else{
+                    playSoundWindows(url);
+                }
+            }
+        }).start();
+    }
+
+    public void playSoundLinux(String url){
+        Clip clip = null;
+        try {
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(url));
+            DataLine.Info info = new DataLine.Info(Clip.class, inputStream.getFormat());
+            clip = (Clip) AudioSystem.getLine(info);
+            clip.open(inputStream);
+            clip.start();
+        } catch (Exception e) {
+            System.err.println("Error: " + e);
+        }
+    }
+
+    public void playSoundWindows(String url){
+        try {
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(url));
+            clip.open(inputStream);
+            clip.start();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public void createMissile(){
+        if(missile == null) {
+            playSound("resources/sounds/shoot.wav");
+            missile = new Missile(canon.getX() + canon.getWidth() / 2 - MISSILE_WIDTH / 2,canon.getY() - canon.getWidth() / 2 - MISSILE_HEIGHT / 2,MISSILE_WIDTH,MISSILE_HEIGHT);
+        }
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public Monster[] getMonsters(){
+        return monster;
+    }
+
+    public Canon getCanon(){
+        return canon;
+    }
+
+    public Missile getMissile(){
+        return missile;
+    }
+
+    public void step() {
+        moveMissile();
+        checkCollision();
+        checkMonsterPosition();
+        moveMonsterMissile();
+        if(monsterLeft <= 0){
+            setGameState("winner");
+        }
+    }
+
+    public void resetGame(){
+        monsterRows++;
+        createMonsters();
+
+        monsterLeft = monsterColumns*monsterRows;
+        gameState = "active";
+    }
+
+    public void resetMissile(){
+        for(int i = 0; i < monsterMissile.length; i++){
+            monsterMissile[i] = null;
+        }
+    }
+
+    public void killPlayer(){
+        canon.setAlive(false);
+        lives--;
+        resetMonster();
+        resetMissile();
+        playSound("resources/sounds/explosion.wav");
+        gameState = "dead";
+        if(lives == 0){
+            gameState = "loser";
+            saveHighScore();
+        }
+    }
+
+    public void resetMonster(){
+        int increment = 0;
+        for(int i = 0; i < monsterColumns; i++){
+            for(int j = 0; j < monsterRows; j++) {
+                monster[increment].setX(i * (monster[increment].getWidth() + 10) + SpaceInvaders.WIDTH/2 - (monsterColumns * MONSTER_WIDTH - monsterColumns * 10) + MONSTER_WIDTH);
+                monster[increment].setY(j * (monster[increment].getHeight() + 10) + monster[increment].getHeight()*3);
+                monster[increment].resetAnimation();
+                increment++;
+            }
+        }
+    }
+
+    public void moveMissile(){
+        if(missile != null) {
+            missile.setY(missile.getY() - missile.getHeight());
+            if(missile.getY() < 0) {
+                removeMissile();
             }
         }
     }
@@ -403,7 +436,8 @@ public class SpaceInvadersGame {
             if(missileBounds.intersects(soucoupeBounds)) {
                 score += soucoupe.getValue();
                 playSound("resources/sounds/explosion.wav");
-                soucoupe = null;
+                removeMissile();
+                removeSoucoupe();
             }
         }
     }

@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class Entity  {
-    // On aurait pu utiliser protected
     private int x;
     private int y;
     private boolean alive;

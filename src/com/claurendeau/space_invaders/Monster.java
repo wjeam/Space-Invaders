@@ -3,7 +3,6 @@ package com.claurendeau.space_invaders;
 import java.util.Random;
 
 public class Monster extends Entity {
-
     private int animation;
     private int type;
     private boolean exploded = false;

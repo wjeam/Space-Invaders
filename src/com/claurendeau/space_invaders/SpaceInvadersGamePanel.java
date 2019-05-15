@@ -128,11 +128,11 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
     public void drawLoser(Graphics g){
         drawCenteredText(g, "VOUS AVEZ PERDU", "Cosmic Alien", 25, Color.white);
         drawCenteredOffsetText(g, "APPUYER SUR ESPACE POUR REJOUER", "Cosmic Alien", 20, Color.white, 0, 30);
-        drawCenteredOffsetText(g, "APPUYER SUR ESCAPE POUR QUITTER", "Cosmic Alien", 15, Color.white, 0, 40);
+        drawCenteredOffsetText(g, "APPUYER SUR ESCAPE POUR QUITTER", "Cosmic Alien", 15, Color.white, 0, 45);
     }
 
     public void drawMenu(Graphics g){
-        drawCenteredOffsetText(g, "SPACE INVADERS", "Cosmic Alien",40, Color.red, 0, -25);
+        drawCenteredOffsetText(g, "SPACE INVADERS", "Cosmic Alien",40, Color.red, 0, -45);
         drawCenteredText(g, "APPUYER SUR ESPACE POUR DEBUTER", "Cosmic Alien" , 25, Color.white);
         g.drawImage(monstre1, width/2-125, height/2+10, 35, 35, null);
         drawCenteredOffsetText(g," = 10 PTS", "Cosmic Alien",25, Color.green, 0, 45);
@@ -146,8 +146,8 @@ public class SpaceInvadersGamePanel extends JPanel implements KeyListener, Actio
 
     public void drawWinner(Graphics g){
         drawCenteredText(g, "BRAVO VOUS AVEZ GAGNE!", "Cosmic Alien" , 25, Color.white);
-        drawCenteredOffsetText(g, "APPUYER SUR ESPACE POUR CONTINUER", "Cosmic Alien", 15, Color.white, 0, 30);
-        drawCenteredOffsetText(g, "APPUYER SUR ESCAPE QUITTER", "Cosmic Alien", 15, Color.white, 0, 40);
+        drawCenteredOffsetText(g, "APPUYER SUR ESPACE POUR CONTINUER", "Cosmic Alien", 20, Color.white, 0, 30);
+        drawCenteredOffsetText(g, "APPUYER SUR ESCAPE QUITTER", "Cosmic Alien", 15, Color.white, 0, 45);
     }
 
     public void drawCenteredText(Graphics g, String textContent, String fontName, int size, Color color){

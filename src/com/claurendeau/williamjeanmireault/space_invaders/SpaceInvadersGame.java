@@ -1,4 +1,4 @@
-package com.claurendeau.space_invaders;
+package com.claurendeau.williamjeanmireault.space_invaders;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;

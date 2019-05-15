@@ -1,4 +1,4 @@
-package com.claurendeau.space_invaders;
+package com.claurendeau.williamjeanmireault.space_invaders;
 
 public class Canon extends Entity {
     public Canon(int x, int y, int width, int height) {

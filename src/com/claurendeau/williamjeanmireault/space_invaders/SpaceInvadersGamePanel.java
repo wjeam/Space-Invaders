@@ -1,4 +1,4 @@
-package com.claurendeau.space_invaders;
+package com.claurendeau.williamjeanmireault.space_invaders;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

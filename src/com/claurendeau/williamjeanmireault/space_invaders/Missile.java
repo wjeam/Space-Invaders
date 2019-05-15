@@ -1,4 +1,4 @@
-package com.claurendeau.space_invaders;
+package com.claurendeau.williamjeanmireault.space_invaders;
 
 public class Missile extends Entity {
     public Missile(int x, int y, int width, int height) {
